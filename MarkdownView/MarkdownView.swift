@@ -28,6 +28,8 @@ open class MarkdownView: UIView {
     
     public var onRendered: ((CGFloat) -> Void)?
     
+    public var globalScript: String?
+    
     public convenience init() {
         self.init(frame: CGRect.zero)
     }
@@ -87,7 +89,7 @@ open class MarkdownView: UIView {
                 wv.backgroundColor = self.backgroundColor
                 
                 self.webView = wv
-                
+                runCustomGlobalScriptIfPresent()
                 wv.load(templateRequest)
             } else {
                 self.webView?.configuration.userContentController.addUserScript(userScript)
@@ -102,12 +104,19 @@ open class MarkdownView: UIView {
         return markdown.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics)
     }
     
+    func runCustomGlobalScriptIfPresent() {
+        if let globalScript = self.globalScript {
+            let userScript = WKUserScript(source: globalScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+            webView?.configuration.userContentController.addUserScript(userScript)
+        }
+    }
 }
 
 extension MarkdownView: WKNavigationDelegate {
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let script = "document.body.scrollHeight;"
+        runCustomGlobalScriptIfPresent()
         webView.evaluateJavaScript(script) { [weak self] result, error in
             if let _ = error { return }
             
