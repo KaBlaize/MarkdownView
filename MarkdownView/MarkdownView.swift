@@ -68,26 +68,31 @@ open class MarkdownView: UIView {
             let script = "window.showMarkdown('\(escapedMarkdown)', \(imageOption));"
             let userScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
             
-            let controller = WKUserContentController()
-            controller.addUserScript(userScript)
-            
-            let configuration = WKWebViewConfiguration()
-            configuration.userContentController = controller
-            
-            let wv = WKWebView(frame: self.bounds, configuration: configuration)
-            wv.scrollView.isScrollEnabled = self.isScrollEnabled
-            wv.translatesAutoresizingMaskIntoConstraints = false
-            wv.navigationDelegate = self
-            addSubview(wv)
-            wv.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-            wv.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-            wv.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-            wv.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-            wv.backgroundColor = self.backgroundColor
-            
-            self.webView = wv
-            
-            wv.load(templateRequest)
+            if self.webView == nil {
+                let controller = WKUserContentController()
+                controller.addUserScript(userScript)
+                
+                let configuration = WKWebViewConfiguration()
+                configuration.userContentController = controller
+                
+                let wv = WKWebView(frame: self.bounds, configuration: configuration)
+                wv.scrollView.isScrollEnabled = self.isScrollEnabled
+                wv.translatesAutoresizingMaskIntoConstraints = false
+                wv.navigationDelegate = self
+                addSubview(wv)
+                wv.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+                wv.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+                wv.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+                wv.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+                wv.backgroundColor = self.backgroundColor
+                
+                self.webView = wv
+                
+                wv.load(templateRequest)
+            } else {
+                self.webView?.configuration.userContentController.addUserScript(userScript)
+                self.webView?.load(templateRequest)
+            }
         } else {
             // TODO: raise error
         }
