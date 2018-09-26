@@ -44,6 +44,9 @@ md.onTouchLink = { [weak self] request in
     return false
   }
 }
+
+// run script on every page load
+md.globalScript = "document.body.innerHTML += "<div>Hello MarkdownView</div>"
 ```
 
 ## Requirements
