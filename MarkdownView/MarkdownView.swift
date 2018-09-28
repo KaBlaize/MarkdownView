@@ -50,6 +50,13 @@ open class MarkdownView: UIView {
         }
     }
     
+    public func load(request: URLRequest) {
+        if self.webView == nil {
+            setupWebView()
+        }
+        self.webView?.load(request)
+    }
+    
     public func load(markdown: String?, enableImage: Bool = true) {
         guard let markdown = markdown else { return }
         
@@ -71,30 +78,10 @@ open class MarkdownView: UIView {
             let userScript = WKUserScript(source: script, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
             
             if self.webView == nil {
-                let controller = WKUserContentController()
-                controller.addUserScript(userScript)
-                
-                let configuration = WKWebViewConfiguration()
-                configuration.userContentController = controller
-                
-                let wv = WKWebView(frame: self.bounds, configuration: configuration)
-                wv.scrollView.isScrollEnabled = self.isScrollEnabled
-                wv.translatesAutoresizingMaskIntoConstraints = false
-                wv.navigationDelegate = self
-                addSubview(wv)
-                wv.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-                wv.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
-                wv.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-                wv.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-                wv.backgroundColor = self.backgroundColor
-                
-                self.webView = wv
-                runCustomGlobalScriptIfPresent()
-                wv.load(templateRequest)
-            } else {
-                self.webView?.configuration.userContentController.addUserScript(userScript)
-                self.webView?.load(templateRequest)
+                setupWebView()
             }
+            self.webView?.configuration.userContentController.addUserScript(userScript)
+            self.webView?.load(templateRequest)
         } else {
             // TODO: raise error
         }
@@ -104,12 +91,34 @@ open class MarkdownView: UIView {
         return markdown.addingPercentEncoding(withAllowedCharacters: CharacterSet.alphanumerics)
     }
     
-    func runCustomGlobalScriptIfPresent() {
+    fileprivate func runCustomGlobalScriptIfPresent() {
         if let globalScript = self.globalScript {
             let userScript = WKUserScript(source: globalScript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
             webView?.configuration.userContentController.addUserScript(userScript)
         }
     }
+    
+    private func setupWebView() {
+        let controller = WKUserContentController()
+        
+        let configuration = WKWebViewConfiguration()
+        configuration.userContentController = controller
+        
+        let wv = WKWebView(frame: self.bounds, configuration: configuration)
+        wv.scrollView.isScrollEnabled = self.isScrollEnabled
+        wv.translatesAutoresizingMaskIntoConstraints = false
+        wv.navigationDelegate = self
+        addSubview(wv)
+        wv.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        wv.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+        wv.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+        wv.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+        wv.backgroundColor = self.backgroundColor
+        
+        self.webView = wv
+        runCustomGlobalScriptIfPresent()
+    }
+    
 }
 
 extension MarkdownView: WKNavigationDelegate {
