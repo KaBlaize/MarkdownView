@@ -16,7 +16,7 @@ open class MarkdownView: UIView {
         }
     }
     
-    public var isScrollEnabled: Bool = true {
+    @objc public var isScrollEnabled: Bool = true {
         
         didSet {
             webView?.scrollView.isScrollEnabled = isScrollEnabled
@@ -24,11 +24,11 @@ open class MarkdownView: UIView {
         
     }
     
-    public var onTouchLink: ((URLRequest) -> Bool)?
+    @objc public var onTouchLink: ((URLRequest) -> Bool)?
     
-    public var onRendered: ((CGFloat) -> Void)?
+    @objc public var onRendered: ((CGFloat) -> Void)?
     
-    public var globalScript: String?
+    @objc public var globalScript: String?
     
     public convenience init() {
         self.init(frame: CGRect.zero)
@@ -44,20 +44,20 @@ open class MarkdownView: UIView {
     
     open override var intrinsicContentSize: CGSize {
         if let height = self.intrinsicContentHeight {
-            return CGSize(width: UIViewNoIntrinsicMetric, height: height)
+            return CGSize(width: UIView.noIntrinsicMetric, height: height)
         } else {
             return CGSize.zero
         }
     }
     
-    public func load(request: URLRequest) {
+    @objc public func load(request: URLRequest) {
         if self.webView == nil {
             setupWebView()
         }
         self.webView?.load(request)
     }
     
-    public func load(markdown: String?, enableImage: Bool = true) {
+    @objc public func load(markdown: String?, enableImage: Bool = true) {
         guard let markdown = markdown else { return }
         
         let bundle = Bundle(for: MarkdownView.self)
